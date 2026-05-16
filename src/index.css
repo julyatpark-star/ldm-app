@@ -96,6 +96,81 @@ body {
   }
 }
 
+/* Persona character ambient float (used by PersonaCharacter). Begins after
+   the fade-in finishes so the entrance and float don't fight. */
+@keyframes character-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.persona-character-float {
+  animation: character-float 3s ease-in-out 400ms infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .persona-character-float { animation: none; }
+}
+
+/* AI response halftone background — shown while waiting on the model.
+   Fade-in is quick (350ms); fade-out lingers (800ms) so the glow doesn't
+   vanish the instant a reply arrives. */
+.halftone-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 800ms ease-out;
+
+  background:
+    /* Top: dense white dot grid */
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.30) 1px,
+      transparent 1.5px
+    ) 0 0 / 5px 5px,
+    /* Upper-left lavender bloom */
+    radial-gradient(
+      ellipse at 30% 30%,
+      rgba(196, 181, 253, 0.25) 0%,
+      transparent 50%
+    ),
+    /* Lower-right deep purple bloom */
+    radial-gradient(
+      ellipse at 70% 70%,
+      rgba(124, 58, 237, 0.35) 0%,
+      transparent 55%
+    ),
+    /* Center base — violet → indigo → transparent */
+    radial-gradient(
+      ellipse at center,
+      rgba(139, 92, 246, 0.4) 0%,
+      rgba(99, 102, 241, 0.2) 35%,
+      transparent 70%
+    );
+
+  /* Soft circular fade so the pattern doesn't terminate in a hard square. */
+  -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 85%);
+          mask-image: radial-gradient(ellipse at center, black 35%, transparent 85%);
+
+  animation: halftone-breath 5s ease-in-out infinite;
+}
+
+.halftone-bg.is-visible {
+  opacity: 1;
+  /* Fade-in faster than fade-out (asymmetric transition). */
+  transition: opacity 350ms ease-out;
+}
+
+@keyframes halftone-breath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halftone-bg { animation: none; }
+}
+
 /* Removes browser default focus while we provide our own */
 button:focus,
 input:focus,

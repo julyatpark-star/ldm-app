@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Plus,
   PanelLeftClose,
@@ -25,7 +25,7 @@ function relativeTime(ts) {
   return new Date(ts).toLocaleDateString();
 }
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false, onToggle }) {
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -38,6 +38,11 @@ export default function Sidebar() {
   const { data } = useOnboarding();
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    setUserMenuOpen(false);
+    navigate('/onboarding/welcome');
+  };
 
   const handleAddScenario = () => {
     const id = createSession();
@@ -60,24 +65,39 @@ export default function Sidebar() {
   const email = data.email?.trim?.() || '';
 
   return (
-    <aside className="w-72 shrink-0 border-r border-divider bg-bg flex flex-col h-screen sticky top-0">
-      {/* Top: logo + collapse toggle */}
-      <div className="px-4 pt-5 pb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center font-bold glow-primary text-sm">
-            L
-          </div>
-          <span className="font-semibold tracking-tight">LDM</span>
+    <aside
+      className="
+        shrink-0 border-r border-divider bg-bg
+        h-screen sticky top-0 overflow-hidden
+        transition-[width] duration-300 ease-out
+      "
+      style={{ width: collapsed ? 0 : 288 }}
+      aria-hidden={collapsed}
+    >
+      <div className="w-72 h-full flex flex-col">
+        {/* Top: logo + collapse toggle */}
+        <div className="px-4 pt-5 pb-3 flex items-center justify-between">
+          <Link
+            to="/"
+            aria-label="LDM home"
+            className="inline-flex items-center hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="/images/LDM.svg"
+              alt="LDM"
+              style={{ height: 28, width: 'auto' }}
+              draggable={false}
+            />
+          </Link>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="text-text-muted hover:text-text transition-colors p-1 rounded"
+            aria-label="Collapse sidebar"
+          >
+            <PanelLeftClose size={18} />
+          </button>
         </div>
-        <button
-          type="button"
-          className="text-text-muted hover:text-text transition-colors p-1 rounded"
-          aria-label="Collapse sidebar"
-          title="Collapse (Phase 2)"
-        >
-          <PanelLeftClose size={18} />
-        </button>
-      </div>
 
       {/* Add Scenario CTA */}
       <div className="px-4 pb-3">
@@ -209,14 +229,15 @@ export default function Sidebar() {
             >
               <button
                 type="button"
+                onClick={handleLogout}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:text-text hover:bg-surface-hi rounded-md transition-colors"
-                title="Logout (Phase 3)"
               >
                 <LogOut size={14} /> Logout
               </button>
             </div>
           )}
         </div>
+      </div>
       </div>
     </aside>
   );

@@ -9,6 +9,7 @@ export const personas = [
     colorClass: 'text-persona-commander',
     borderColorClass: 'border-persona-commander',
     image: '/personas/commander.png',
+    characterScale: 1.0,
     voiceHint: { pitch: 0.9, rate: 1.05 },
   },
   {
@@ -21,6 +22,7 @@ export const personas = [
     colorClass: 'text-persona-facilitator',
     borderColorClass: 'border-persona-facilitator',
     image: '/personas/facilitator.png',
+    characterScale: 0.89,
     voiceHint: { pitch: 1.1, rate: 1.0 },
   },
   {
@@ -33,6 +35,7 @@ export const personas = [
     colorClass: 'text-persona-strategist',
     borderColorClass: 'border-persona-strategist',
     image: '/personas/strategist.png',
+    characterScale: 0.81,
     voiceHint: { pitch: 0.95, rate: 0.95 },
   },
   {
@@ -45,6 +48,7 @@ export const personas = [
     colorClass: 'text-persona-supporter',
     borderColorClass: 'border-persona-supporter',
     image: '/personas/supporter.png',
+    characterScale: 0.91,
     voiceHint: { pitch: 1.15, rate: 0.9 },
   },
   {
@@ -57,6 +61,7 @@ export const personas = [
     colorClass: 'text-persona-adaptive',
     borderColorClass: 'border-persona-adaptive',
     image: '/personas/adaptive.png',
+    characterScale: 1.06,
     voiceHint: { pitch: 1.0, rate: 1.0 },
   },
 ];

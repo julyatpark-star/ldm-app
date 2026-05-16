@@ -18,11 +18,13 @@ export default function OnboardingLayout({
     <main className="min-h-screen flex flex-col">
       {/* Top bar */}
       <header className="px-6 md:px-10 pt-6 pb-4 flex items-center gap-6">
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center font-bold text-base glow-primary">
-            L
-          </div>
-          <span className="font-semibold tracking-tight">LDM</span>
+        <div className="shrink-0">
+          <img
+            src="/images/LDM.svg"
+            alt="LDM"
+            style={{ height: 32, width: 'auto' }}
+            draggable={false}
+          />
         </div>
         <div className="flex-1 max-w-2xl">
           <ProgressBar current={step} total={totalSteps} />

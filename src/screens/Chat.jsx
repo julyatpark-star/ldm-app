@@ -1,35 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Mic, MessageSquare, Send } from 'lucide-react';
-import PersonaPortrait from '../components/PersonaPortrait.jsx';
+import { MessageSquare, Send } from 'lucide-react';
+import PersonaAvatar from '../components/PersonaAvatar.jsx';
+import PersonaCharacter from '../components/PersonaCharacter.jsx';
+import VoiceOrb from '../components/VoiceOrb.jsx';
+import AiResponseBackground from '../components/AiResponseBackground.jsx';
 import { useSessions } from '../context/SessionContext.jsx';
 import { personas } from '../data/personas.js';
 
 const PERSONAS_BY_ID = Object.fromEntries(personas.map((p) => [p.id, p]));
-
-function VoiceOrb({ active }) {
-  // Siri-style placeholder orb. Real audio reactivity is Phase 2.
-  return (
-    <div className="relative">
-      <div
-        className={`
-          w-28 h-28 rounded-full transition-transform duration-700
-          ${active ? 'scale-110 animate-glow-pulse' : 'scale-100'}
-        `}
-        style={{
-          background:
-            'conic-gradient(from 0deg, var(--color-primary), var(--color-info), var(--color-persona-supporter), var(--color-persona-facilitator), var(--color-primary))',
-          filter: 'blur(2px)',
-          boxShadow: '0 0 48px rgba(168, 85, 247, 0.45)',
-        }}
-        aria-hidden
-      />
-      <div
-        className="absolute inset-2 rounded-full bg-bg"
-        aria-hidden
-      />
-    </div>
-  );
-}
 
 function lastPersonaTurn(messages) {
   for (let i = messages.length - 1; i >= 0; i--) {
@@ -50,11 +28,17 @@ export default function Chat() {
   const [listening, setListening] = useState(false);
   const inputRef = useRef(null);
   const scrollRef = useRef(null);
+  const bottomRef = useRef(null);
+
+  // Halftone background tracks pending exactly. The fade-out itself takes
+  // 800ms (CSS) so removing visibility immediately still feels gentle.
+  const [bgVisible, setBgVisible] = useState(false);
+  useEffect(() => {
+    setBgVisible(pending);
+  }, [pending]);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages.length, pending]);
 
   useEffect(() => {
@@ -68,6 +52,13 @@ export default function Chat() {
     const last = lastPersonaTurn(messages);
     return last ? PERSONAS_BY_ID[last.personaId] : null;
   }, [messages, hasMessages]);
+
+  const lastPersonaIdx = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'persona') return i;
+    }
+    return -1;
+  }, [messages]);
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
@@ -107,38 +98,35 @@ export default function Chat() {
         </div>
 
         {/* Bottom bar — mic + text toggle */}
-        <div className="flex items-center justify-center gap-6">
-          <button
-            type="button"
-            onClick={handleMicToggle}
-            aria-label={listening ? 'Stop listening' : 'Start voice input'}
-            className={`
-              relative w-20 h-20 rounded-full
-              bg-white text-bg flex items-center justify-center
-              transition-all duration-200 hover:-translate-y-0.5
-              ${listening ? 'glow-white-hover' : 'glow-white'}
-            `}
-          >
-            {listening ? <VoiceOrb active /> : <Mic size={28} />}
-          </button>
-          <button
-            type="button"
-            onClick={() => setInputMode('text')}
-            aria-label="Switch to text input"
-            className="
-              w-12 h-12 rounded-full bg-surface border border-border
-              flex items-center justify-center text-text-secondary
-              hover:text-text hover:bg-surface-hi transition-colors
-            "
-          >
-            <MessageSquare size={18} />
-          </button>
+        <div className="flex flex-col items-center gap-3">
+          {listening && (
+            <p className="text-xs uppercase tracking-[0.25em] text-text-secondary">
+              Listening…
+            </p>
+          )}
+          <div className="flex items-center justify-center gap-6">
+            <button
+              type="button"
+              onClick={handleMicToggle}
+              aria-label={listening ? 'Stop listening' : 'Start voice input'}
+              className="transition-transform duration-200 hover:-translate-y-0.5 focus:outline-none"
+            >
+              <VoiceOrb active={listening} size={listening ? 120 : 32} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setInputMode('text')}
+              aria-label="Switch to text input"
+              className="
+                w-12 h-12 rounded-full bg-surface border border-border
+                flex items-center justify-center text-text-secondary
+                hover:text-text hover:bg-surface-hi transition-colors
+              "
+            >
+              <MessageSquare size={18} />
+            </button>
+          </div>
         </div>
-        {listening && (
-          <p className="text-center text-xs text-text-muted mt-3">
-            Listening… (voice ships in Phase 2)
-          </p>
-        )}
       </main>
     );
   }
@@ -180,7 +168,7 @@ export default function Chat() {
               className="text-text-muted hover:text-text transition-colors"
               aria-label="Switch to voice"
             >
-              <Mic size={18} />
+              <VoiceOrb active={false} size={32} />
             </button>
           </div>
           <button
@@ -203,9 +191,9 @@ export default function Chat() {
 
   // ─── Active session ───────────────────────────────────────────────────────
   return (
-    <main className="flex-1 flex flex-col">
-      {/* Header: session title */}
-      <header className="px-6 md:px-10 pt-5 pb-3 border-b border-divider">
+    <main className="flex-1 min-h-0 flex flex-col">
+      {/* Header: session title — stays pinned */}
+      <header className="shrink-0 px-6 md:px-10 pt-5 pb-3 border-b border-divider">
         <p className="text-[10px] uppercase tracking-[0.25em] text-text-muted">
           Scenario
         </p>
@@ -214,31 +202,31 @@ export default function Chat() {
         </h1>
       </header>
 
-      {/* Persona row */}
-      <section className="px-6 md:px-10 py-4 border-b border-divider">
-        <div className="flex justify-center gap-4 md:gap-8 flex-wrap">
+      {/* Avatar row — stays pinned. Last speaker glows. */}
+      <section className="shrink-0 px-6 md:px-10 py-5 border-b border-divider">
+        <div className="flex justify-center gap-6 md:gap-10 flex-wrap">
           {personas.map((p) => (
-            <PersonaPortrait
+            <PersonaAvatar
               key={p.id}
               persona={p}
-              speaking={speaker?.id === p.id}
-              size="md"
+              active={speaker?.id === p.id}
             />
           ))}
         </div>
       </section>
 
-      {/* Conversation */}
-      <section className="flex-1 px-6 md:px-10 py-6 overflow-hidden">
+      {/* Conversation — the ONLY scrollable region */}
+      <section className="flex-1 min-h-0 px-6 md:px-10 py-6 overflow-hidden relative">
+        <AiResponseBackground visible={bgVisible} />
         <div
           ref={scrollRef}
-          className="max-w-3xl mx-auto h-full overflow-y-auto pr-1 flex flex-col gap-3"
+          className="relative z-10 max-w-5xl mx-auto h-full overflow-y-auto pr-1 flex flex-col gap-4"
         >
           {messages.map((m, i) => {
             if (m.role === 'user') {
               return (
                 <div key={i} className="flex justify-end animate-fade-in">
-                  <div className="max-w-[80%] bg-primary text-white px-4 py-3 rounded-2xl rounded-tr-sm">
+                  <div className="max-w-[70%] bg-primary text-white px-4 py-3 rounded-2xl rounded-tr-sm">
                     <p className="text-sm leading-relaxed">{m.content}</p>
                   </div>
                 </div>
@@ -254,14 +242,24 @@ export default function Chat() {
             const p = PERSONAS_BY_ID[m.personaId];
             if (!p) return null;
             const personaColor = `var(${p.colorVar})`;
+            const isLastPersona = i === lastPersonaIdx;
             return (
-              <div key={i} className="flex justify-start animate-fade-in">
+              <div
+                key={i}
+                className="flex items-end gap-4 animate-fade-in"
+              >
+                {/* Left slot — character only renders for the latest persona */}
+                <div className="w-[220px] shrink-0 hidden md:flex justify-end items-end">
+                  {isLastPersona && (
+                    <PersonaCharacter key={p.id} persona={p} size={180} />
+                  )}
+                </div>
                 <div
-                  className="max-w-[80%] bg-surface border px-4 py-3 rounded-2xl rounded-tl-sm"
+                  className="max-w-[60%] bg-surface border px-4 py-3 rounded-2xl rounded-tl-sm"
                   style={{ borderColor: personaColor }}
                 >
                   <p
-                    className="text-[10px] font-semibold uppercase tracking-[0.2em] mb-1"
+                    className="text-[10px] font-semibold uppercase tracking-[0.25em] mb-1"
                     style={{ color: personaColor }}
                   >
                     {p.name}
@@ -272,17 +270,20 @@ export default function Chat() {
             );
           })}
           {pending && (
-            <div className="flex justify-start animate-fade-in">
+            <div className="flex items-end gap-4 animate-fade-in">
+              <div className="w-[220px] shrink-0 hidden md:block" aria-hidden />
               <div className="bg-surface border border-border px-4 py-3 rounded-2xl rounded-tl-sm">
                 <span className="text-sm text-text-muted">The team is thinking…</span>
               </div>
             </div>
           )}
+          {/* Scroll-to-bottom anchor */}
+          <div ref={bottomRef} />
         </div>
       </section>
 
       {/* Input bar */}
-      <footer className="px-6 md:px-10 py-5 border-t border-divider bg-bg">
+      <footer className="shrink-0 px-6 md:px-10 py-5 border-t border-divider bg-bg">
         <div className="max-w-3xl mx-auto">
           {inputMode === 'text' ? (
             <form onSubmit={handleSubmit} className="flex items-center gap-3">
@@ -302,7 +303,7 @@ export default function Chat() {
                   className="text-text-muted hover:text-text transition-colors"
                   aria-label="Switch to voice"
                 >
-                  <Mic size={18} />
+                  <VoiceOrb active={false} size={32} />
                 </button>
               </div>
               <button
@@ -320,38 +321,35 @@ export default function Chat() {
               </button>
             </form>
           ) : (
-            <div className="flex items-center justify-center gap-6">
-              <button
-                type="button"
-                onClick={handleMicToggle}
-                aria-label={listening ? 'Stop listening' : 'Start voice input'}
-                className={`
-                  w-16 h-16 rounded-full bg-white text-bg
-                  flex items-center justify-center
-                  transition-all duration-200 hover:-translate-y-0.5
-                  ${listening ? 'glow-white-hover' : 'glow-white'}
-                `}
-              >
-                {listening ? <VoiceOrb active /> : <Mic size={22} />}
-              </button>
-              <button
-                type="button"
-                onClick={() => setInputMode('text')}
-                aria-label="Switch to text"
-                className="
-                  w-12 h-12 rounded-full bg-surface border border-border
-                  flex items-center justify-center text-text-secondary
-                  hover:text-text hover:bg-surface-hi transition-colors
-                "
-              >
-                <MessageSquare size={18} />
-              </button>
+            <div className="flex flex-col items-center gap-3">
+              {listening && (
+                <p className="text-xs uppercase tracking-[0.25em] text-text-secondary">
+                  Listening…
+                </p>
+              )}
+              <div className="flex items-center justify-center gap-6">
+                <button
+                  type="button"
+                  onClick={handleMicToggle}
+                  aria-label={listening ? 'Stop listening' : 'Start voice input'}
+                  className="transition-transform duration-200 hover:-translate-y-0.5 focus:outline-none"
+                >
+                  <VoiceOrb active={listening} size={listening ? 120 : 32} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputMode('text')}
+                  aria-label="Switch to text"
+                  className="
+                    w-12 h-12 rounded-full bg-surface border border-border
+                    flex items-center justify-center text-text-secondary
+                    hover:text-text hover:bg-surface-hi transition-colors
+                  "
+                >
+                  <MessageSquare size={18} />
+                </button>
+              </div>
             </div>
-          )}
-          {inputMode === 'voice' && listening && (
-            <p className="text-center text-xs text-text-muted mt-3">
-              Listening… (voice ships in Phase 2)
-            </p>
           )}
         </div>
       </footer>

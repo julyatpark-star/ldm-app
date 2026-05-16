@@ -118,8 +118,9 @@ function newSessionId() {
 function mockChat({ sessionId, message }) {
   const eligible = personas.filter((p) => RESPONSE_POOL[p.id]);
   const len = message.trim().length;
-  // 1-3 responders. Short messages get fewer, long ones get more.
-  const count = len < 30 ? 1 : len < 100 ? 2 : 3;
+  // 1-2 responders so the flow stays calm — every persona piling on each turn
+  // is visually noisy.
+  const count = len < 50 ? 1 : 2;
   const responders = shuffle(eligible).slice(0, count);
 
   const personaResponses = responders.map((p) => {

@@ -29,15 +29,15 @@ export default function Login() {
       <div className="w-full max-w-md flex flex-col gap-8 animate-fade-in">
         {/* Logo + branding */}
         <header className="flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-lg bg-primary flex items-center justify-center font-bold text-2xl glow-primary">
-            L
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <h1 className="text-3xl font-bold tracking-tight">LDM</h1>
-            <p className="text-sm text-text-secondary">
-              Leadership in 5 personas.
-            </p>
-          </div>
+          <img
+            src="/images/LDM.svg"
+            alt="LDM"
+            style={{ height: 56, width: 'auto' }}
+            draggable={false}
+          />
+          <p className="text-sm text-text-secondary">
+            Leadership in 5 personas.
+          </p>
         </header>
 
         {/* Login card */}
