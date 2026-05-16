@@ -10,29 +10,22 @@ export default function Ready() {
   const displayName = data.name?.trim() || 'leader';
 
   const handleStart = () => {
-    // First scenario will live at /scenario/1 once built. Stub for now.
-    alert(
-      `Scenario 1 coming next.\n\nProfile collected for ${displayName}:\n${JSON.stringify(
-        data,
-        null,
-        2
-      )}`
-    );
+    navigate('/');
   };
 
   return (
     <OnboardingLayout
-      step={5}
+      step={4}
       footer={
         <>
           <Button
             variant="ghost"
-            onClick={() => navigate('/onboarding/meet-your-team')}
+            onClick={() => navigate('/onboarding/about-you')}
           >
             <ArrowLeft size={18} /> Back
           </Button>
           <Button variant="hero" size="lg" onClick={handleStart}>
-            Start your first scenario <Sparkles size={18} />
+            Meet your team <Sparkles size={18} />
           </Button>
         </>
       }
@@ -48,9 +41,9 @@ export default function Ready() {
         </h1>
 
         <p className="text-base md:text-lg text-text-secondary max-w-xl leading-relaxed">
-          You&rsquo;ll move through five scenarios. Each one tests a different
-          dimension of leadership. There&rsquo;s no right answer — only the
-          choices you can defend.
+          Bring any leadership situation — a stuck team, a hard call, a
+          conversation you&rsquo;re dreading. Your AI team will respond as if
+          you were leading them.
         </p>
       </div>
     </OnboardingLayout>

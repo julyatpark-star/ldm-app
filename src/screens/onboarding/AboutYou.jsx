@@ -59,7 +59,7 @@ export default function AboutYou() {
           <Button
             variant="primary"
             disabled={!canContinue}
-            onClick={() => navigate('/onboarding/meet-your-team')}
+            onClick={() => navigate('/onboarding/ready')}
           >
             Continue <ArrowRight size={18} />
           </Button>

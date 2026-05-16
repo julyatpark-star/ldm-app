@@ -28,11 +28,11 @@
   --color-info: #06B6D4;
 
   /* ═══ PERSONA ═══ */
-  --color-persona-driver: #F59E0B;
-  --color-persona-critic: #EC4899;
+  --color-persona-commander: #F59E0B;
+  --color-persona-facilitator: #EC4899;
   --color-persona-strategist: #3B82F6;
-  --color-persona-empath: #84CC16;
-  --color-persona-bridger: #06B6D4;
+  --color-persona-supporter: #84CC16;
+  --color-persona-adaptive: #06B6D4;
 }
 
 * {

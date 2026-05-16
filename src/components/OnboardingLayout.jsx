@@ -6,11 +6,11 @@ import ProgressBar from './ProgressBar.jsx';
  *   - centered content
  *   - sticky-feel footer for nav buttons
  *
- * Pass `step` (1..5) and `totalSteps` (5).
+ * Pass `step` (1..N) and `totalSteps` (defaults to 4).
  */
 export default function OnboardingLayout({
   step,
-  totalSteps = 5,
+  totalSteps = 4,
   children,
   footer,
 }) {

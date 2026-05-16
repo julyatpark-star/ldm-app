@@ -29,11 +29,11 @@ export default {
         error: 'var(--color-error)',
         info: 'var(--color-info)',
         persona: {
-          driver: 'var(--color-persona-driver)',
-          critic: 'var(--color-persona-critic)',
+          commander: 'var(--color-persona-commander)',
+          facilitator: 'var(--color-persona-facilitator)',
           strategist: 'var(--color-persona-strategist)',
-          empath: 'var(--color-persona-empath)',
-          bridger: 'var(--color-persona-bridger)',
+          supporter: 'var(--color-persona-supporter)',
+          adaptive: 'var(--color-persona-adaptive)',
         },
       },
       fontFamily: {
